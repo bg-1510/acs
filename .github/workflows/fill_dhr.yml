@@ -1,0 +1,58 @@
+name: Auto-fill DHR Form
+
+on:
+  schedule:
+    - cron: "0 9 * * 1-5"   # Every weekday at 9:00 AM UTC
+  workflow_dispatch:         # Manual trigger from Actions tab
+
+jobs:
+  fill-dhr-form:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Install ChromeDriver
+        run: pip install webdriver-manager
+
+      - name: Run DHR form filler
+        # Each secret is mapped to an environment variable the script reads
+        env:
+          DHR_Q1:  ${{ secrets.DHR_Q1 }}
+          DHR_Q2:  ${{ secrets.DHR_Q2 }}
+          DHR_Q3:  ${{ secrets.DHR_Q3 }}
+          DHR_Q4:  ${{ secrets.DHR_Q4 }}
+          DHR_Q5:  ${{ secrets.DHR_Q5 }}
+          DHR_Q6:  ${{ secrets.DHR_Q6 }}
+          DHR_Q7:  ${{ secrets.DHR_Q7 }}
+          DHR_Q8:  ${{ secrets.DHR_Q8 }}
+          DHR_Q9:  ${{ secrets.DHR_Q9 }}
+          DHR_Q10: ${{ secrets.DHR_Q10 }}
+          DHR_Q11: ${{ secrets.DHR_Q11 }}
+          DHR_Q12: ${{ secrets.DHR_Q12 }}
+          DHR_Q13: ${{ secrets.DHR_Q13 }}
+          DHR_Q14: ${{ secrets.DHR_Q14 }}
+          DHR_Q15: ${{ secrets.DHR_Q15 }}
+        run: python fill_form.py
+
+      - name: Upload error screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-screenshot
+          path: error_screenshot.png
+          retention-days: 7
