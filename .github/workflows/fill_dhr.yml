@@ -5,6 +5,9 @@ on:
     - cron: "0 9 * * 1-5"   # Every weekday at 9:00 AM UTC
   workflow_dispatch:         # Manual trigger from Actions tab
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # Fix: use Node.js 24 for all actions
+
 jobs:
   fill-dhr-form:
     runs-on: ubuntu-latest
@@ -30,8 +33,8 @@ jobs:
         run: pip install webdriver-manager
 
       - name: Run DHR form filler
-        # Each secret is mapped to an environment variable the script reads
         env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           DHR_Q1:  ${{ secrets.DHR_Q1 }}
           DHR_Q2:  ${{ secrets.DHR_Q2 }}
           DHR_Q3:  ${{ secrets.DHR_Q3 }}
