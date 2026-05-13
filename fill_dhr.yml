@@ -1,0 +1,54 @@
+name: Auto-fill DHR Form
+
+on:
+  # Run every weekday at 9:00 AM UTC — adjust cron to your timezone
+  schedule:
+    - cron: "0 9 * * 1-5"
+
+  # Also allow manual triggering from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  fill-dhr-form:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Install dependencies
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # 4. Install Google Chrome
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      # 5. Install matching ChromeDriver
+      - name: Install ChromeDriver
+        run: |
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
+          echo "Chrome version: $CHROME_VERSION"
+          pip install webdriver-manager
+
+      # 6. Run the Selenium script
+      - name: Run DHR form filler
+        run: python fill_form.py
+
+      # 7. Upload screenshot on failure (for debugging)
+      - name: Upload error screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-screenshot
+          path: error_screenshot.png
+          retention-days: 7
