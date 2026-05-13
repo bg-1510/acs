@@ -5,27 +5,27 @@ on:
     - cron: "0 9 * * 1-5"   # Every weekday at 9:00 AM UTC
   workflow_dispatch:         # Manual trigger from Actions tab
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # Fix: use Node.js 24 for all actions
-
 jobs:
   fill-dhr-form:
     runs-on: ubuntu-latest
 
     steps:
+      # Updated to v6 — native Node.js 24 support
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
+      # Updated to v6 — native Node.js 24 support
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      # Updated to v2 — latest stable
       - name: Install Chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
 
@@ -34,7 +34,6 @@ jobs:
 
       - name: Run DHR form filler
         env:
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           DHR_Q1:  ${{ secrets.DHR_Q1 }}
           DHR_Q2:  ${{ secrets.DHR_Q2 }}
           DHR_Q3:  ${{ secrets.DHR_Q3 }}
